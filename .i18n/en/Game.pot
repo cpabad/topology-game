@@ -56,16 +56,64 @@ msgstr ""
 msgid "This introduction is shown before one enters level 1 of the demo world. Use markdown."
 msgstr ""
 
-#: Game.lean:4
-msgid "Hello World Game"
+#: Game/Levels/Warmup/L01_NameWhatYouHave.lean:10
+msgid "Name what you have"
+msgstr ""
+
+#. §0: `U`
+#. §1: `V`
+#. §2: `exact`
+#. §3: `exact h`
+#. §4: `h`
+#: Game/Levels/Warmup/L01_NameWhatYouHave.lean:12
+msgid "If you already know that §0 is contained in §1, you can say so. That is all this level asks.\n"
+"\n"
+"The real work here is on the right: the **inventory**. Every theorem listed there is one you met in the Set Theory Game. They are yours to use from now on; you will not be asked to prove them again.\n"
+"\n"
+"To finish a level you close every goal. When the goal is *exactly* one of your hypotheses, the tactic §2 closes it: §3 says \"the goal is §4\"."
+msgstr ""
+
+#. §0: $U \\subseteq V$
+#. §1: $U \\subseteq V$
+#: Game/Levels/Warmup/L01_NameWhatYouHave.lean:20
+msgid "If §0, then §1."
+msgstr ""
+
+#: Game/Levels/Warmup/L01_NameWhatYouHave.lean:24
+msgid "That is the whole move: recognise that what you need is already in your hands, and name it. Most levels in this game end by naming something you already have."
+msgstr ""
+
+#: Game/Levels/Warmup.lean:4
+msgid "What You Already Know"
+msgstr ""
+
+#. §0: `exact`
+#. §1: `intro`
+#. §2: `apply`
+#. §3: `rw`
+#. §4: `obtain`
+#. §5: `have`
+#: Game/Levels/Warmup.lean:6
+msgid "This world assumes you have played the **Set Theory Game** by Daniel Velleman.\n"
+"\n"
+"Nothing you proved there carries over automatically: each game on this server starts with an\n"
+"empty inventory. So instead of asking you to prove those results again, this world *hands them\n"
+"back* to you as tools, and then drills the moves you will need for topology: §0, §1,\n"
+"§2, §3, §4, and §5, all on set membership.\n"
+"\n"
+"There is no boss level here. This world is an on-ramp."
 msgstr ""
 
 #: Game.lean:5
+msgid "Hello World Game"
+msgstr ""
+
+#: Game.lean:6
 msgid "This text appears on the starting page where one selects the world/level to play.\n"
 "You can use **markdown**."
 msgstr ""
 
-#: Game.lean:11
+#: Game.lean:12
 msgid "Here you can put additional information about the game. It is accessible\n"
 "from the starting through the drop-down menu.\n"
 "\n"
@@ -74,10 +122,10 @@ msgid "Here you can put additional information about the game. It is accessible\
 "Use **markdown**."
 msgstr ""
 
-#: Game.lean:22
+#: Game.lean:23
 msgid "Game Template"
 msgstr ""
 
-#: Game.lean:23
+#: Game.lean:24
 msgid "You should use this game as a template for your own game and add your own levels."
 msgstr ""
