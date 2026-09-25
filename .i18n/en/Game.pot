@@ -1,48 +1,71 @@
 msgid ""
-msgstr "Project-Id-Version: Game v4.23.0\n"
+msgstr "Project-Id-Version: Game v4.31.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-10-23\n"
+"POT-Creation-Date: 2026-09-24\n"
 "Last-Translator: \n"
 "Language-Team: none\n"
 "Language: en\n"
 "Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Basepath: ../..\n"
+"X-Poedit-SearchPath-0: ."
 
-#: GameServer.RpcHandlers
+#: GameServer/RpcHandlers.lean:169
+msgid "level completed! 🎉"
+msgstr ""
+
+#: GameServer/RpcHandlers.lean:177
 msgid "level completed with warnings… 🎭"
 msgstr ""
 
-#: Game.Levels.DemoWorld.L01_HelloWorld
+#: GameServer/RpcHandlers.lean:190
+msgid "intermediate goal solved! 🎉"
+msgstr ""
+
+#: Game/Levels/DemoWorld/L01_HelloWorld.lean:6
 msgid "Hello World"
 msgstr ""
 
-#: Game
+#: Game/Levels/DemoWorld/L01_HelloWorld.lean:8
+msgid "This text is shown as first message when the level is played.\n"
+"You can insert hints in the proof below. They will appear in this side panel\n"
+"depending on the proof a user provides."
+msgstr ""
+
+#. §0: `«{h}»`
+#. §1: `«{g}»`
+#: Game/Levels/DemoWorld/L01_HelloWorld.lean:13
+msgid "You can either start using §0 or §1."
+msgstr ""
+
+#. §0: `«{h}»`
+#: Game/Levels/DemoWorld/L01_HelloWorld.lean:16
+#: Game/Levels/DemoWorld/L01_HelloWorld.lean:19
+msgid "You should use §0 now."
+msgstr ""
+
+#: Game/Levels/DemoWorld/L01_HelloWorld.lean:22
+msgid "This last message appears if the level is solved."
+msgstr ""
+
+#: Game/Levels/DemoWorld.lean:4
+msgid "Demo World"
+msgstr ""
+
+#: Game/Levels/DemoWorld.lean:6
+msgid "This introduction is shown before one enters level 1 of the demo world. Use markdown."
+msgstr ""
+
+#: Game.lean:4
+msgid "Hello World Game"
+msgstr ""
+
+#: Game.lean:5
 msgid "This text appears on the starting page where one selects the world/level to play.\n"
 "You can use **markdown**."
 msgstr ""
 
-#: GameServer.RpcHandlers
-msgid "level completed! 🎉"
-msgstr ""
-
-#: Game
-msgid "Hello World Game"
-msgstr ""
-
-#. §0: `«{g}»`
-#: Game.Levels.DemoWorld.L01_HelloWorld
-msgid "You should use §0 now."
-msgstr ""
-
-#: GameServer.RpcHandlers
-msgid "intermediate goal solved! 🎉"
-msgstr ""
-
-#: Game
-msgid "You should use this game as a template for your own game and add your own levels."
-msgstr ""
-
-#: Game
+#: Game.lean:11
 msgid "Here you can put additional information about the game. It is accessible\n"
 "from the starting through the drop-down menu.\n"
 "\n"
@@ -51,30 +74,10 @@ msgid "Here you can put additional information about the game. It is accessible\
 "Use **markdown**."
 msgstr ""
 
-#: Game.Levels.DemoWorld.L01_HelloWorld
-msgid "This last message appears if the level is solved."
-msgstr ""
-
-#: Game.Levels.DemoWorld.L01_HelloWorld
-msgid "This text is shown as first message when the level is played.\n"
-"You can insert hints in the proof below. They will appear in this side panel\n"
-"depending on the proof a user provides."
-msgstr ""
-
-#: Game.Levels.DemoWorld
-msgid "This introduction is shown before one enters level 1 of the demo world. Use markdown."
-msgstr ""
-
-#. §0: `«{h}»`
-#. §1: `«{g}»`
-#: Game.Levels.DemoWorld.L01_HelloWorld
-msgid "You can either start using §0 or §1."
-msgstr ""
-
-#: Game.Levels.DemoWorld
-msgid "Demo World"
-msgstr ""
-
-#: Game
+#: Game.lean:22
 msgid "Game Template"
+msgstr ""
+
+#: Game.lean:23
+msgid "You should use this game as a template for your own game and add your own levels."
 msgstr ""

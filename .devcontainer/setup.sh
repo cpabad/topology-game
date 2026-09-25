@@ -12,7 +12,7 @@ export LEAN_VERSION="$(cat lean-toolchain | grep -oE '[^:]+$')"
 export VITE_LEAN4GAME_SINGLE=true
 export VITE_LEAN4GAME_SINGLE_NAME=$(basename "$PWD")
 cd ..
-git clone https://github.com/leanprover-community/lean4game.git
+git clone --branch "$LEAN_VERSION" https://github.com/leanprover-community/lean4game.git
 cd lean4game
 npm install
 npm run build
