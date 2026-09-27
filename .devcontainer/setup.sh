@@ -11,8 +11,10 @@ lake build
 export LEAN_VERSION="$(cat lean-toolchain | grep -oE '[^:]+$')"
 export VITE_LEAN4GAME_SINGLE=true
 export VITE_LEAN4GAME_SINGLE_NAME=$(basename "$PWD")
+REPO_DIR="$PWD"
 cd ..
 git clone --branch "$LEAN_VERSION" https://github.com/leanprover-community/lean4game.git
 cd lean4game
+git apply "$REPO_DIR/.devcontainer/patches/relay-level-switch.patch" || exit 1
 npm install
 npm run build

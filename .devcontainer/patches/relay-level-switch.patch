@@ -1,0 +1,167 @@
+diff --git a/relay/src/serverProcess.ts b/relay/src/serverProcess.ts
+index 8d950c6..4803d6a 100644
+--- a/relay/src/serverProcess.ts
++++ b/relay/src/serverProcess.ts
+@@ -187,6 +187,89 @@ export class GameManager {
+     const gameDataPath = path.join(gameDir, '.lake', 'gamedata', `game.json`)
+     const gameData = JSON.parse(fs.readFileSync(gameDataPath, 'utf8'))
+ 
++    // Level-switch fix (local patch: topology-game/.devcontainer/patches/relay-level-switch.patch).
++    // The client comes back to a level it opened before with `$/lean/rpc/connect` and `didChange`,
++    // never `didOpen`, and never sends `didClose`. So the relay tracks which level the server
++    // document holds, and reopens it when the client moves to another level.
++
++    /** The single document the server sees, whatever level the client is on */
++    const serverUri = `file://${gameDir}/Game/Metadata.lean`
++
++    /** Every level the client has opened: its proof text (no header) and version */
++    const clientDocs = new Map<string, { text: string, version: number }>()
++
++    /** The client URI of the level whose header the server document holds */
++    let loadedUri: string | undefined
++
++    /** Offset in `text` of an LSP position (line, UTF-16 character) */
++    function offsetAt(text: string, pos: { line: number, character: number }): number {
++      let offset = 0
++      for (let line = 0; line < pos.line; line++) {
++        const nextBreak = text.indexOf('\n', offset)
++        if (nextBreak === -1) return text.length
++        offset = nextBreak + 1
++      }
++      const lineEnd = text.indexOf('\n', offset)
++      return Math.min(offset + pos.character, lineEnd === -1 ? text.length : lineEnd)
++    }
++
++    /** Apply a didChange's contentChanges to `text`, in order */
++    function applyChanges(text: string, changes: any[]): string {
++      for (const change of changes) {
++        if (change.range === undefined) {
++          text = change.text  // no range: replaces the whole document
++        } else {
++          const start = offsetAt(text, change.range.start)
++          const end = offsetAt(text, change.range.end)
++          text = text.slice(0, start) + change.text + text.slice(end)
++        }
++      }
++      return text
++    }
++
++    /** The server-side text of a level: import and `Runner` header, then the proof.
++     *  Also points `worldId`/`levelId`, which label the server's replies, at this level. */
++    function levelText(clientUri: string, content: string): string {
++      // Parse the URI to get world and level
++      const uri = new URL(clientUri)
++      const pathParts = path.parse(uri.pathname)
++      worldId = path.basename(pathParts.dir)
++      levelId = pathParts.name
++
++      // Read level data from JSON file
++      const levelDataPath = path.join(gameDir, '.lake', 'gamedata', `level__${worldId}__${levelId}.json`)
++      if (!fs.existsSync(levelDataPath)) {
++        console.error(`[${new Date()}] Missing level data: ${levelDataPath}`)
++      }
++      const levelData = JSON.parse(fs.readFileSync(levelDataPath, 'utf8'))
++
++      if (difficulty === undefined || inventory === undefined) {
++        console.error("Did not receive difficulty/inventory from client!")
++        difficulty = 1
++        inventory = []
++      }
++
++      return `import ${levelData.module} import GameServer.Runner \nRunner ` +
++        `${JSON.stringify(gameData.name)} ${JSON.stringify(worldId)} ${levelId} ` +
++        `(difficulty := ${difficulty}) ` +
++        `(inventory := [${inventory.map(s => JSON.stringify(s)).join(',')}]) ` +
++        `:= by\n${content}\n`
++    }
++
++    /** Send a message of the relay's own; the writer keeps it in order with forwarded ones */
++    function sendToServer(message: any) {
++      serverConnection.writer.write(message).catch(error =>
++        console.error(`[${new Date()}] Could not send ${message.method} to the server: ${error}`))
++    }
++
++    /** Close the server document; the server stops that level's Lean worker */
++    function closeLoadedLevel() {
++      if (loadedUri === undefined) return
++      sendToServer({ jsonrpc: "2.0", method: "textDocument/didClose",
++        params: { textDocument: { uri: serverUri } } })
++      loadedUri = undefined
++    }
++
+     /** Sending messages from the client to the server */
+     socketConnection.forward(serverConnection, (message: any) => {
+       if (message?.error) {
+@@ -210,38 +293,45 @@ export class GameManager {
+         semanticTokenRequestIds.add(message.id)
+       }
+ 
+-      if (message.method === "textDocument/didOpen") {
+-        console.info(`[${new Date()}] didOpen: ${message.params?.textDocument?.uri}`)
+-        // Parse the URI to get world and level
+-        const uri = new URL(message.params.textDocument.uri)
+-        const pathParts = path.parse(uri.pathname)
+-        worldId = path.basename(pathParts.dir)
+-        levelId = pathParts.name
+-
+-        replaceUri(message, `file://${gameDir}/Game/Metadata.lean`)
+-
+-        // Read level data from JSON file
+-        const levelDataPath = path.join(gameDir, '.lake', 'gamedata', `level__${worldId}__${levelId}.json`)
+-        if (!fs.existsSync(levelDataPath)) {
+-          console.error(`[${new Date()}] Missing level data: ${levelDataPath}`)
++      if (message.method === "textDocument/didClose") {
++        // Not sent by the v4.31.0 client; handled so that closing one level can't stop another's worker
++        const clientUri = message.params.textDocument.uri
++        clientDocs.delete(clientUri)
++        if (clientUri !== loadedUri) {
++          return message  // unmapped: the server has no worker for a client URI and ignores it
+         }
+-        const levelData = JSON.parse(fs.readFileSync(levelDataPath, 'utf8'))
++        loadedUri = undefined  // mapped below, so the server stops this level's worker
++      }
+ 
+-        if (difficulty === undefined || inventory === undefined) {
+-          console.error("Did not receive difficulty/inventory from client!")
+-          difficulty = 1
+-          inventory = []
++      // Back on a level it opened before, the client asks for an RPC session, then sends didChange.
++      // Reopen that level on the server first, so both reach a worker running the right header.
++      if (message.method === "$/lean/rpc/connect" || message.method === "textDocument/didChange") {
++        const clientUri = message.params.textDocument?.uri ?? message.params.uri
++        const doc = clientDocs.get(clientUri)
++        if (doc !== undefined && clientUri !== loadedUri) {
++          console.info(`[${new Date()}] reopen: ${clientUri} on ${message.method}`)
++          closeLoadedLevel()
++          sendToServer({ jsonrpc: "2.0", method: "textDocument/didOpen", params: { textDocument: {
++            uri: serverUri, languageId: "lean4", version: doc.version, text: levelText(clientUri, doc.text)
++          } } })
++          loadedUri = clientUri
++        }
++        if (message.method === "textDocument/didChange" && doc !== undefined) {
++          doc.text = applyChanges(doc.text, message.params.contentChanges)
++          doc.version = message.params.textDocument.version
+         }
++      }
+ 
+-        let content = message.params.textDocument.text;
+-        message.params.textDocument.text =
+-          `import ${levelData.module} import GameServer.Runner \nRunner ` +
+-          `${JSON.stringify(gameData.name)} ${JSON.stringify(worldId)} ${levelId} ` +
+-          `(difficulty := ${difficulty}) ` +
+-          `(inventory := [${inventory.map(s => JSON.stringify(s)).join(',')}]) ` +
+-          `:= by\n${content}\n`
++      if (message.method === "textDocument/didOpen") {
++        const clientUri = message.params.textDocument.uri
++        console.info(`[${new Date()}] didOpen: ${clientUri}`)
++        clientDocs.set(clientUri, { text: message.params.textDocument.text, version: message.params.textDocument.version })
++        closeLoadedLevel()  // otherwise the server starts a second worker and never stops the first
++        replaceUri(message, serverUri)
++        message.params.textDocument.text = levelText(clientUri, message.params.textDocument.text)
++        loadedUri = clientUri
+       } else {
+-        replaceUri(message, `file://${gameDir}/Game/Metadata.lean`)
++        replaceUri(message, serverUri)
+       }
+ 
+       shiftLines(message, +PROOF_START_LINE)
