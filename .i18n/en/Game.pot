@@ -1,7 +1,7 @@
 msgid ""
 msgstr "Project-Id-Version: Game v4.31.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-25\n"
+"POT-Creation-Date: 2026-10-02\n"
 "Last-Translator: \n"
 "Language-Team: none\n"
 "Language: en\n"
@@ -83,7 +83,32 @@ msgstr ""
 msgid "That is the whole move: recognise that what you need is already in your hands, and name it. Most levels in this game end by naming something you already have."
 msgstr ""
 
-#: Game/Levels/Warmup.lean:4
+#: Game/Levels/Warmup/L02.lean:10
+msgid "Name what you have pt 2"
+msgstr ""
+
+#: Game/Levels/Warmup/L02.lean:12
+msgid "Here should be another easy one. You could solve using intro, but there could be a one-line proof that you can use since this proof was solved in Set Theory Game."
+msgstr ""
+
+#. §0: $U \\subseteq U$
+#: Game/Levels/Warmup/L02.lean:16
+msgid "Prove §0."
+msgstr ""
+
+#: Game/Levels/Warmup/L02.lean:18
+msgid "You already have access to Set.Subset.refl. How can you use that theorem to solve this level in one-line."
+msgstr ""
+
+#: Game/Levels/Warmup/L02.lean:22
+msgid "Were you able to solve this in one line?"
+msgstr ""
+
+#: Game/Levels/Warmup/L02.lean:29
+msgid "When you see ⊆ in a goal, try using intro x hx. When you see ⊆ in an assumption (i.e., h : A ⊆ B), try to get another assumption to have the form hx : x ∈ A so that you can apply h at hx to get hx : x ∈ B"
+msgstr ""
+
+#: Game/Levels/Warmup.lean:5
 msgid "What You Already Know"
 msgstr ""
 
@@ -93,7 +118,7 @@ msgstr ""
 #. §3: `rw`
 #. §4: `obtain`
 #. §5: `have`
-#: Game/Levels/Warmup.lean:6
+#: Game/Levels/Warmup.lean:7
 msgid "This world assumes you have played the **Set Theory Game** by Daniel Velleman.\n"
 "\n"
 "Nothing you proved there carries over automatically: each game on this server starts with an\n"
